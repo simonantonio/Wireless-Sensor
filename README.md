@@ -19,7 +19,7 @@ The board aims to be a low power long term sensor platform, potentially being po
 
   
     
-Licensed Under the GPL3 and designed with the OSHW concepts in mind
+Licensed Under the [Creative Commons Attribution-ShareAlike 3.0 Unported (CC-BY-SA 3.0)](https://creativecommons.org/licenses/by-sa/3.0/) and designed with the OSHW concepts in mind
   
    
  Intial Board Prototypes are being producted via the awesome service at [Dirty PCB's](http://dirtypcbs.com/)  
