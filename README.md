@@ -20,3 +20,11 @@ The board aims to be a low power long term sensor platform, potentially being po
   
     
 Licensed Under the GPL3 and designed with the OSHW concepts in mind
+  
+   
+ Intial Board Prototypes are being producted via the awesome service at [Dirty PCB's](http://dirtypcbs.com/)  
+ Feel free to buy them [here](http://dirtypcbs.com/view.php?share=2637&accesskey=f92450b07b6b3961496835b5062594b2)  for $25.00USD
+ 
+ I/We do not provide any warranty of this item/software/concepts/etc whatsoever, whether express, implied, or statutory, including, but not limited to, any warranty of merchantability or fitness for a particular purpose or any warranty that the contents will be error-free.  
+
+ 
