@@ -5,7 +5,7 @@ This is a very basic document containing thoughts, ideas and some notes on the w
    
  You will need 
  ----
-  - ISP programmer
+ - ISP programmer
  - Soldering Skills (there is a reasonable amount of SMD parts sorry)
  - Parts (You should be able to get a decent amount from ebay)
  - Programming Skills. 
