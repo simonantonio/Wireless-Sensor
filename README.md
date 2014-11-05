@@ -17,4 +17,6 @@ Results can then be transmitted to a receiver using a NRF24L01+
 
 The board aims to be a low power long term sensor platform, potentially being powered from a LIPO battery directly or using a step down module such as the [Pololu Step Down Voltage Regulator](http://www.pololu.com/product/2097) 
 
-
+  
+    
+Licensed Under the GPL3 and designed with the OSHW concepts in mind
