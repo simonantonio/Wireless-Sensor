@@ -1,4 +1,8 @@
 
+/*
+	User configurable items
+*/
+
 #ifndef _CONFIGURATION_H_
 #define _CONFIGURATION_H_
 

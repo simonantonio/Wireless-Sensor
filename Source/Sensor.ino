@@ -1,6 +1,7 @@
 #include <SPI.h>
 #include <Wire.h>
 #include <DHT.h>
+#include <PinChangeInt.h>
 
 #include <SFE_BMP180.h>
 
@@ -27,7 +28,7 @@
 		Sparkfun Weather Meters (SEN-08942)
 			Rain																PD5 [D5]
 			Pulse (add resister to high side R7)	(anometer)					PD2 [D2]
-			Wind Vane (wire to ADC3 [IR])
+			Wind Vane (wire to ADC3 [IR])										ADC3 [A3]
 
 		Pulse 2	(add resister to high side R12)									PB1	[D9]
 		Hall																	PD6 [D6]
@@ -64,7 +65,9 @@
 //IR or WEATHER - set false for IR sensing
 
 #define IR_PIN A3
-#define WIND_DIRECTION A3
+#define WS_WIND_DIRECTION A3
+#define WS_RAIN 5
+#define WS_WIND_SPEED 2
 
 //LDR Pin
 #define LDR_PIN A2
@@ -89,6 +92,14 @@ SFE_BMP180 pressure;
 //Error Handler
 Error err;
 
+volatile uint8_t latest_interrupted_pin;
+volatile uint8_t interrupt_count[20] = { 0 }; // 20 possible arduino pins
+
+void quicfunc() {
+	latest_interrupted_pin = PCintPort::arduinoPin;
+	interrupt_count[latest_interrupted_pin]++;
+};
+
 void setup()
 {
 	if (!manager.init())
@@ -105,9 +116,18 @@ void setup()
 	}
 
 	dht.begin();
+
+	//Setup INPUT pints (external pullups)
+	pinMode(WS_RAIN, INPUT);
+	pinMode(WS_WIND_DIRECTION, INPUT);
+	pinMode(WS_WIND_SPEED, INPUT);
+
+	PCintPort::attachInterrupt(WS_RAIN, &quicfunc, FALLING);  // add more attachInterrupt code as required
+        PCintPort::attachInterrupt(WS_WIND_SPEED, &quicfunc, FALLING);  // add more attachInterrupt code as required
 }
 
 uint8_t nrf24_send_data[] = "BMP_T:{0}\nBMP_P:{1}\nDHT_T:{2}\nDHT_H:{3}\nWS_D:{4}\nWS_R:{5}\nWS_S:{6}\nLDR:{7}\nBAT:{8}\nP2_C{9}\nH_C:{10}";
+
 // Dont put this on the stack:
 uint8_t nrf24_response_buf[RH_NRF24_MAX_MESSAGE_LEN];
 
@@ -118,6 +138,11 @@ void loop()
 
 	DATAGRAM datagram; //clear it out
 
+	//init datagram values to 0 where counting
+	datagram.Pulse_Count = 0;
+	datagram.WS_Rain_Count = 0;
+	datagram.WS_Wind_Speed_Count = 0;
+
 	//get date and time for datagram
 	datagram.Day =  day();
 	datagram.Hour = hour();
@@ -127,8 +152,13 @@ void loop()
 	datagram.Month = month();
 	datagram.Year = year();
 
+	//test casting datagram to message
+	//is apparently naughty will need to be tweaked/replaced later on
+	uint8_t* msg = reinterpret_cast<uint8_t(&)[sizeof datagram]>(datagram);
+
 	// Send a message to manager_server
-	if (manager.sendtoWait(nrf24_send_data, sizeof(nrf24_send_data), NRF24_SERVER_ADDRESS))
+	//if (manager.sendtoWait(nrf24_send_data, sizeof(nrf24_send_data), NRF24_SERVER_ADDRESS))
+	if (manager.sendtoWait(msg, sizeof(msg), NRF24_SERVER_ADDRESS))
 	{
 		// Now wait for a reply from the server
 		uint8_t len = sizeof(nrf24_response_buf);
@@ -174,8 +204,21 @@ void loop()
 	{
 		//DO weather sensor (read A
 		int wind_direction;
-		wind_direction = analogRead(WIND_DIRECTION);
+		wind_direction = analogRead(WS_WIND_DIRECTION);
 
+		//Loop each pin TODO - OPTIMISE 
+		//Possible issue with bouncing - TODO Debounce
+		uint8_t i;
+		for (i = 0; i < 20; i++) 
+		{
+			if (interrupt_count[i] != 0) 
+			{
+				if (i == WS_RAIN)
+					datagram.WS_Rain_Count = interrupt_count[i];
+				if (i == WS_WIND_SPEED)
+					datagram.WS_Wind_Speed_Count = interrupt_count[i];
+			}
+		}
 	}
 	else
 	{

@@ -1,3 +1,6 @@
+/*
+	Primitve error handler - turns on an error light
+*/
 
 #ifndef _ERROR_H_
 #define _ERROR_H_
