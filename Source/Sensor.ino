@@ -95,10 +95,28 @@ Error err;
 volatile uint8_t latest_interrupted_pin;
 volatile uint8_t interrupt_count[20] = { 0 }; // 20 possible arduino pins
 
+volatile unsigned long debounce_min = 0xffffffff;
+volatile unsigned long debounce_last = 0;
+
 void quicfunc() {
-	latest_interrupted_pin = PCintPort::arduinoPin;
-	interrupt_count[latest_interrupted_pin]++;
-};
+	//Test this debounce code
+	long thisTime = micros() - debounce_last;
+	debounce_last = micros();
+	if (thisTime > 500)
+	{
+		latest_interrupted_pin = PCintPort::arduinoPin;
+		interrupt_count[latest_interrupted_pin]++;
+
+		if (thisTime < debounce_min)
+		{
+			debounce_min = thisTime;
+		}
+
+	}
+
+	//latest_interrupted_pin = PCintPort::arduinoPin;
+	//interrupt_count[latest_interrupted_pin]++;
+}
 
 void setup()
 {
